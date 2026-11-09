@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f2eb">
+  <title>Север рядом — путешествия за тишиной</title>
+  <style>
+    :root {
+      --bg: #f5f2eb;
+      --surface: #fffdf8;
+      --text: #20261f;
+      --muted: #697166;
+      --accent: #51745b;
+      --accent-dark: #375540;
+      --line: #e4e3d9;
+      --shadow: 0 18px 50px rgba(32, 38, 31, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+      transition: background .25s, color .25s;
+    }
+    body.dark {
+      --bg: #171d19;
+      --surface: #222b25;
+      --text: #f0f1e8;
+      --muted: #b3b9ae;
+      --accent: #9bc49d;
+      --accent-dark: #c4e0bf;
+      --line: #354139;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .2);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .container { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .section { padding: 92px 0; }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { line-height: 1.12; }
+    h2 { max-width: 720px; margin-bottom: 18px; font-size: clamp(2rem, 5vw, 3.5rem); }
+    .section-lead { max-width: 590px; margin-bottom: 36px; color: var(--muted); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 0 22px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      transition: transform .2s, background .2s;
+    }
+    .button:hover { transform: translateY(-2px); background: var(--accent-dark); }
+    .button-outline {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+    }
+    .button-outline:hover { background: var(--surface); color: var(--text); }
+
+    /* Навигация */
+    .header {
+      position: sticky;
+      z-index: 10;
+      top: 0;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+      backdrop-filter: blur(14px);
+    }
+    .nav { display: flex; min-height: 72px; align-items: center; justify-content: space-between; gap: 20px; }
+    .logo { font-weight: 800; letter-spacing: -.04em; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 25px; color: var(--muted); font-size: .94rem; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .icon-button {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1.1rem;
+    }
+    .menu-toggle { display: none; }
+
+    /* Первый экран */
+    .hero { padding: 58px 0 76px; }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 50px; }
+    .hero h1 { max-width: 650px; margin-bottom: 22px; font-size: clamp(2.8rem, 6vw, 5.3rem); letter-spacing: -.065em; }
+    .hero-copy { max-width: 520px; margin-bottom: 28px; color: var(--muted); font-size: 1.08rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .hero-visual {
+      position: relative;
+      min-height: 470px;
+      overflow: hidden;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(14, 31, 28, .04), rgba(14, 31, 28, .35)),
+        url("https://i.pinimg.com/736x/a9/71/36/a971360276b271009761d9e1a729c140.jpg") center/cover;
+      box-shadow: var(--shadow);
+    }
+    .visual-label {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 15px;
+      color: white;
+    }
+    .visual-label strong { display: block; font-size: 1.45rem; }
+    .visual-label span { font-size: .9rem; opacity: .85; }
+
+    /* Фильтр и карточки */
+    .filter-row { display: flex; flex-wrap: wrap; gap: 9px; margin: 28px 0; }
+    .filter-btn {
+      padding: 10px 17px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text);
+    }
+    .filter-btn.active, .filter-btn:hover { border-color: var(--accent); background: var(--accent); color: white; }
+    .trip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .trip-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .trip-card {
+  height: 330px;
+  perspective: 1000px;
+  border-radius: 20px;
+  outline: none;
+}
+
+.trip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transform-style: preserve-3d;
+  transition: transform .65s cubic-bezier(.2, .7, .2, 1);
+  box-shadow: var(--shadow);
+}
+
+.trip-card:hover .trip-card-inner,
+.trip-card:focus .trip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.trip-card-front,
+.trip-card-back {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: inherit;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.trip-card-front {
+  background: var(--surface);
+}
+
+.trip-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trip-card-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 26px;
+  background: var(--surface);
+  transform: rotateY(180deg);
+}
+
+.trip-card-back .trip-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.trip-card-back h3 {
+  margin: 20px 0 10px;
+  font-size: 1.5rem;
+}
+
+.trip-card-back p {
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trip-card-inner { transition: none; }
+}
+
+    /* Шаги */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .step {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+    }
+    .step-icon { display: grid; width: 54px; height: 54px; margin-bottom: 24px; place-items: center; border-radius: 17px; background: color-mix(in srgb, var(--accent) 14%, var(--surface)); font-size: 1.55rem; }
+    .step h3 { margin-bottom: 9px; }
+    .step p { margin-bottom: 0; color: var(--muted); }
+
+    /* Атмосферный блок */
+    .vibe {
+      position: relative;
+      display: grid;
+      min-height: 420px;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 28px;
+      background:
+        linear-gradient(90deg, rgba(12, 27, 24, .78), rgba(12, 27, 24, .18)),
+        url("https://i.pinimg.com/736x/51/7c/cf/517ccf6794d654ef7e663e5528a4a88d.jpg") center 48%/cover;
+      color: #fff;
+    }
+    .vibe-content { width: min(750px, calc(100% - 48px)); padding: 55px 0; }
+    .vibe blockquote { margin: 0 0 20px; font-size: clamp(2rem, 5vw, 4.2rem); font-weight: 700; line-height: 1.06; letter-spacing: -.05em; }
+    .vibe p { margin: 0; color: rgba(255,255,255,.8); }
+
+    /* Табы */
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 18px; }
+    .tab-btn { padding: 11px 18px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--text); }
+    .tab-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+    .tab-panel { min-height: 150px; padding: 26px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); }
+    .tab-panel h3 { margin-bottom: 10px; }
+    .tab-panel p { max-width: 720px; margin-bottom: 0; color: var(--muted); }
+    [hidden] { display: none !important; }
+
+    /* Калькулятор и тарифы */
+    .calculator-wrap { display: grid; grid-template-columns: .9fr 1.1fr; gap: 30px; align-items: stretch; }
+    .calc-card, .price-card { padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
+    .field { display: grid; gap: 8px; margin: 17px 0; }
+    .field label { font-size: .92rem; font-weight: 700; }
+    .field input, .field select {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .calc-result { margin: 20px 0 0; color: var(--muted); }
+    .calc-result strong { display: block; margin-top: 4px; color: var(--accent); font-size: 2rem; }
+    .price-card { display: flex; flex-direction: column; justify-content: space-between; }
+    .price { margin: 12px 0; font-size: 2.6rem; font-weight: 800; letter-spacing: -.05em; }
+    .price-card ul { padding-left: 20px; color: var(--muted); }
+    .price-card li { margin: 8px 0; }
+
+    /* Отзывы */
+    .review-box {
+      min-height: 245px;
+      padding: 34px;
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .stars { margin-bottom: 15px; color: #d9a840; letter-spacing: .14em; }
+    .review-text { max-width: 760px; font-size: clamp(1.2rem, 3vw, 1.8rem); }
+    .review-author { color: var(--muted); }
+    .slider-controls { display: flex; gap: 9px; margin-top: 18px; }
+
+    /* FAQ и форма */
+    .faq-list { max-width: 800px; }
+    .faq-item { border-bottom: 1px solid var(--line); }
+    .faq-question {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 21px 0;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .faq-question span:last-child { color: var(--accent); font-size: 1.35rem; transition: transform .2s; }
+    .faq-question[aria-expanded="true"] span:last-child { transform: rotate(45deg); }
+    .faq-answer { padding: 0 30px 20px 0; color: var(--muted); }
+    .contact-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 40px; align-items: start; }
+    .contact-form { padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
+    .form-status { min-height: 24px; margin: 12px 0 0; color: var(--accent); }
+    .footer { padding: 28px 0; border-top: 1px solid var(--line); color: var(--muted); }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+    @media (max-width: 800px) {
+      .nav-links {
+        position: absolute;
+        top: 72px; right: 20px; left: 20px;
+        display: none;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0;
+        padding: 12px 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { padding: 12px 0; }
+      .menu-toggle { display: grid; }
+      .hero-grid, .calculator-wrap, .contact-grid { grid-template-columns: 1fr; }
+      .hero-visual { min-height: 360px; }
+      .trip-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 540px) {
+      .container { width: min(100% - 28px, 1120px); }
+      .section { padding: 68px 0; }
+      .hero { padding-top: 42px; }
+      .hero-visual { min-height: 300px; }
+      .trip-grid { grid-template-columns: 1fr; }
+      .trip-image { height: 230px; }
+      .vibe { min-height: 350px; }
+      .review-box, .calc-card, .price-card, .contact-form { padding: 22px; }
+      .nav-actions .button { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="nav container" aria-label="Главная навигация">
+      <a class="logo" href="#top">СЕВЕР<span>·</span>РЯДОМ</a>
+      <div class="nav-links" id="navLinks">
+        <a href="#trips">Маршруты</a>
+        <a href="#how">Как это работает</a>
+        <a href="#prices">Стоимость</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="nav-actions">
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Переключить тему">☾</button>
+        <a class="button" href="#contact">Обсудить поездку</a>
+        <button class="icon-button menu-toggle" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Путешествия в своём ритме</p>
+          <h1>Сбавьте скорость. Услышьте север.</h1>
+          <p class="hero-copy">Небольшие поездки туда, где вместо уведомлений — ветер, вместо расписания — горизонт, а впечатления остаются надолго.</p>
+          <div class="hero-actions">
+            <a class="button" href="#trips">Выбрать маршрут <span aria-hidden="true">↗</span></a>
+            <a class="button button-outline" href="#how">Как всё устроено</a>
+          </div>
+        </div>
+        <div class="hero-visual" role="img" aria-label="Горный пейзаж на рассвете">
+          <div class="visual-label">
+            <div><strong>Карелия</strong><span>Тихий маршрут · 4 дня</span></div>
+            <span>61°47′ N</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="trips">
+      <div class="container">
+        <p class="eyebrow">Куда отправимся</p>
+        <h2>Места, в которых легко выдохнуть</h2>
+        <p class="section-lead">Выбирайте настроение — детали маршрута мы бережно соберём вместе с вами.</p>
+
+        <div class="filter-row" role="group" aria-label="Фильтр маршрутов">
+          <button class="filter-btn active" type="button" data-filter="all">Все места</button>
+          <button class="filter-btn" type="button" data-filter="water">У воды</button>
+          <button class="filter-btn" type="button" data-filter="forest">В лесу</button>
+          <button class="filter-btn" type="button" data-filter="mountain">Горы</button>
+        </div>
+
+       <article class="trip-card" data-category="water" tabindex="0">
+  <div class="trip-card-inner">
+    <div class="trip-card-front">
+      <img
+        class="trip-image"
+        src="https://i.pinimg.com/736x/ce/65/33/ce653373473bbd14e7357e095b4beeab.jpg"
+        alt="Озеро среди гор"
+        loading="lazy"
+      >
+    </div>
+    <div class="trip-card-back">
+      <div class="trip-meta"><span>🌊 У воды</span><span>4 дня</span></div>
+      <h3>Карельские берега</h3>
+      <p>Ладожские шхеры, лодка и вечера у костра.</p>
+    </div>
+  </div>
+</article>
+
+<article class="trip-card" data-category="forest" tabindex="0">
+  <div class="trip-card-inner">
+    <div class="trip-card-front">
+      <img
+        class="trip-image"
+        src="https://i.pinimg.com/736x/78/63/66/786366bb4f3243d374cb0514a3580cfc.jpg"
+        alt="Тропинка в лесу"
+        loading="lazy"
+      >
+    </div>
+    <div class="trip-card-back">
+      <div class="trip-meta"><span>🌲 В лесу</span><span>3 дня</span></div>
+      <h3>Лесное молчание</h3>
+      <p>Тропы, тёплая баня и никакой спешки.</p>
+    </div>
+  </div>
+</article>
+
+<article class="trip-card" data-category="mountain" tabindex="0">
+  <div class="trip-card-inner">
+    <div class="trip-card-front">
+      <img
+        class="trip-image"
+        src="https://i.pinimg.com/1200x/da/b4/7e/dab47e3616a6cbcf49f0bb4d64647a37.jpg"
+        alt="Горная долина"
+        loading="lazy"
+      >
+    </div>
+    <div class="trip-card-back">
+      <div class="trip-meta"><span>⛰️ Горы</span><span>5 дней</span></div>
+      <h3>Выше облаков</h3>
+      <p>Панорамные тропы и ночёвки с видом на вершины.</p>
+    </div>
+  </div>
+</article>
+
+    <section class="section" id="how">
+      <div class="container">
+        <p class="eyebrow">Без сложной логистики</p>
+        <h2>Три шага до большого выдоха</h2>
+        <p class="section-lead">Вы занимаетесь предвкушением — мы помогаем с организацией.</p>
+        <div class="steps">
+          <article class="step">
+            <div class="step-icon" aria-hidden="true">✦</div>
+            <h3>Выбираем настроение</h3>
+            <p>Обсуждаем, чего хочется: тишины у воды, долгих прогулок или новых высот.</p>
+          </article>
+          <article class="step">
+            <div class="step-icon" aria-hidden="true">⌁</div>
+            <h3>Собираем маршрут</h3>
+            <p>Подбираем даты, жильё и комфортный темп путешествия под вашу компанию.</p>
+          </article>
+          <article class="step">
+            <div class="step-icon" aria-hidden="true">↗</div>
+            <h3>Отправляемся</h3>
+            <p>Вы получаете план поездки и контакты координатора — дальше начинается север.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Атмосфера путешествия">
+      <div class="container">
+        <div class="vibe">
+          <div class="vibe-content">
+            <p class="eyebrow" style="color:#d7e7d2">Место для паузы</p>
+            <blockquote>«Иногда лучший план — оставить в расписании побольше воздуха».</blockquote>
+            <p>Север рядом. Нужно только разрешить себе замедлиться.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <p class="eyebrow">Выберите свой темп</p>
+        <h2>Одна поездка — разные ощущения</h2>
+        <div class="tabs" role="tablist" aria-label="Темп путешествия">
+          <button class="tab-btn active" type="button" role="tab" aria-selected="true" data-tab="slow">Медленно</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="active">Активно</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="family">С семьёй</button>
+        </div>
+        <div class="tab-panel" id="tab-slow" role="tabpanel">
+          <h3>Меньше пунктов, больше момента</h3>
+          <p>Поздние завтраки, прогулки без гонки за километрами и время, чтобы просто посидеть у воды.</p>
+        </div>
+        <div class="tab-panel" id="tab-active" role="tabpanel" hidden>
+          <h3>Каждый день — новый маршрут</h3>
+          <p>Трекинг, каяки и видовые точки. Насыщенная программа с комфортными остановками для отдыха.</p>
+        </div>
+        <div class="tab-panel" id="tab-family" role="tabpanel" hidden>
+          <h3>Удобно взрослым и интересно детям</h3>
+          <p>Короткие прогулки, уютное размещение и впечатления, которыми хочется делиться всей семьёй.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="prices">
+      <div class="container">
+        <p class="eyebrow">Планируем бюджет</p>
+        <h2>Прикиньте стоимость поездки</h2>
+        <p class="section-lead">Расчёт ориентировочный: финальную смету подготовим после выбора маршрута и дат.</p>
+        <div class="calculator-wrap">
+          <div class="calc-card">
+            <h3>Ваше путешествие</h3>
+            <div class="field">
+              <label for="people">Количество путешественников</label>
+              <input id="people" type="number" min="1" max="12" value="2">
+            </div>
+            <div class="field">
+              <label for="days">Длительность</label>
+              <select id="days">
+                <option value="3">3 дня</option>
+                <option value="4" selected>4 дня</option>
+                <option value="5">5 дней</option>
+                <option value="7">7 дней</option>
+              </select>
+            </div>
+            <p class="calc-result">Примерная стоимость на компанию<strong id="totalPrice">32 000 ₽</strong></p>
+          </div>
+          <div class="price-card">
+            <div>
+              <p class="eyebrow">В стоимость входит</p>
+              <h3>Ничего лишнего — только важное</h3>
+              <div class="price">от 4 000 ₽ <span style="font-size:1rem;font-weight:400">/ чел. в день</span></div>
+              <ul>
+                <li>Продуманный маршрут и поддержка координатора</li>
+                <li>Подбор проживания и локальных активностей</li>
+                <li>Памятка по сборам и полезные контакты</li>
+              </ul>
+            </div>
+            <a class="button" href="#contact">Запросить расчёт</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <p class="eyebrow">Тёплые слова с дороги</p>
+        <h2>Север остаётся с вами</h2>
+        <div class="review-box" aria-live="polite">
+          <div class="stars" aria-label="5 из 5">★★★★★</div>
+          <p class="review-text" id="reviewText">«Мы ехали за красивыми видами, а вернулись с ощущением, будто наконец-то нажали на паузу. Всё было спокойно и очень по-человечески».</p>
+          <p class="review-author" id="reviewAuthor">Анна и Миша · поездка в Карелию</p>
+        </div>
+        <div class="slider-controls">
+          <button class="icon-button" id="prevReview" type="button" aria-label="Предыдущий отзыв">←</button>
+          <button class="icon-button" id="nextReview" type="button" aria-label="Следующий отзыв">→</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container">
+        <p class="eyebrow">Частые вопросы</p>
+        <h2>Перед тем как собирать рюкзак</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false"><span>Нужно ли быть опытным туристом?</span><span>＋</span></button>
+            <div class="faq-answer" hidden>Нет. Подберём маршрут и темп под ваш опыт, а перед поездкой расскажем, что взять с собой.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false"><span>Можно поехать одному или одной?</span><span>＋</span></button>
+            <div class="faq-answer" hidden>Да. Поможем присоединиться к небольшой группе или организуем индивидуальное путешествие.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false"><span>Что будет, если испортится погода?</span><span>＋</span></button>
+            <div class="faq-answer" hidden>Заранее предусматриваем запасной план и подбираем активности с учётом сезона и прогноза.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false"><span>Как забронировать поездку?</span><span>＋</span></button>
+            <div class="faq-answer" hidden>Оставьте контакты в форме — мы уточним пожелания, даты и подготовим подходящие варианты.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container contact-grid">
+        <div>
+          <p class="eyebrow">Начнём с простого</p>
+          <h2>Расскажите, куда тянет</h2>
+          <p class="section-lead">Оставьте имя и email — мы напишем вам, чтобы обсудить маршрут и даты.</p>
+        </div>
+        <form class="contact-form" id="contactForm">
+          <div class="field">
+            <label for="name">Имя</label>
+            <input id="name" name="name" type="text" placeholder="Как к вам обращаться?" required>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="name@example.com" required>
+          </div>
+          <button class="button" type="submit">Отправить заявку <span aria-hidden="true">↗</span></button>
+          <p class="form-status" id="formStatus" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <a class="logo" href="#top">СЕВЕР<span>·</span>РЯДОМ</a>
+      <span>Путешествия, после которых дышится свободнее.</span>
+      <span>© 2025 Север рядом</span>
+    </div>
+  </footer>
+
+  <script>
+    // Бургер-меню
+    const menuToggle = document.querySelector("#menuToggle");
+    const navLinks = document.querySelector("#navLinks");
+
+    menuToggle.addEventListener("click", () => {
+      const isOpen = navLinks.classList.toggle("open");
+      menuToggle.setAttribute("aria-expanded", isOpen);
+      menuToggle.textContent = isOpen ? "×" : "☰";
+    });
+
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.textContent = "☰";
+      });
+    });
+
+    // Переключение светлой и тёмной темы
+    const themeToggle = document.querySelector("#themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const isDark = document.body.classList.toggle("dark");
+      themeToggle.textContent = isDark ? "☀" : "☾";
+      themeToggle.setAttribute("aria-label", isDark ? "Включить светлую тему" : "Включить тёмную тему");
+    });
+
+    // Фильтр карточек
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const tripCards = document.querySelectorAll(".trip-card");
+
+    filterButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        filterButtons.forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+
+        const filter = button.dataset.filter;
+        tripCards.forEach(card => {
+          card.hidden = filter !== "all" && card.dataset.category !== filter;
+        });
+      });
+    });
+
+    // Табы
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    tabButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        tabButtons.forEach(item => {
+          item.classList.remove("active");
+          item.setAttribute("aria-selected", "false");
+        });
+        button.classList.add("active");
+        button.setAttribute("aria-selected", "true");
+
+        document.querySelectorAll(".tab-panel").forEach(panel => panel.hidden = true);
+        document.querySelector("#tab-" + button.dataset.tab).hidden = false;
+      });
+    });
+
+    // Аккордеон: одновременно открыт только один ответ
+    document.querySelectorAll(".faq-question").forEach(button => {
+      button.addEventListener("click", () => {
+        const shouldOpen = button.getAttribute("aria-expanded") !== "true";
+
+        document.querySelectorAll(".faq-question").forEach(otherButton => {
+          otherButton.setAttribute("aria-expanded", "false");
+          otherButton.nextElementSibling.hidden = true;
+        });
+
+        if (shouldOpen) {
+          button.setAttribute("aria-expanded", "true");
+          button.nextElementSibling.hidden = false;
+        }
+      });
+    });
+
+    // Калькулятор
+    const peopleInput = document.querySelector("#people");
+    const daysSelect = document.querySelector("#days");
+    const totalPrice = document.querySelector("#totalPrice");
+
+    function updatePrice() {
+      const people = Math.min(12, Math.max(1, Number(peopleInput.value) || 1));
+      const days = Number(daysSelect.value);
+      peopleInput.value = people;
+      totalPrice.textContent = (people * days * 4000).toLocaleString("ru-RU") + " ₽";
+    }
+    peopleInput.addEventListener("input", updatePrice);
+    daysSelect.addEventListener("change", updatePrice);
+    updatePrice();
+
+    // Слайдер отзывов
+    const reviews = [
+      {
+        text: "«Мы ехали за красивыми видами, а вернулись с ощущением, будто наконец-то нажали на паузу. Всё было спокойно и очень по-человечески».",
+        author: "Анна и Миша · поездка в Карелию"
+      },
+      {
+        text: "«Самое ценное — не пытаться успеть всё. У нас были лес, баня, хороший кофе и целый вечер у озера. Именно то, что было нужно».",
+        author: "Ирина · лесной маршрут"
+      },
+      {
+        text: "«Организация оказалась простой, а сама поездка — настоящим приключением. Уже присматриваем даты для следующего путешествия».",
+        author: "Денис и Лена · горный маршрут"
+      }
+    ];
+    let reviewIndex = 0;
+
+    function showReview(index) {
+      reviewIndex = (index + reviews.length) % reviews.length;
+      document.querySelector("#reviewText").textContent = reviews[reviewIndex].text;
+      document.querySelector("#reviewAuthor").textContent = reviews[reviewIndex].author;
+    }
+    document.querySelector("#prevReview").addEventListener("click", () => showReview(reviewIndex - 1));
+    document.querySelector("#nextReview").addEventListener("click", () => showReview(reviewIndex + 1));
+
+    // Демонстрационная отправка формы
+    document.querySelector("#contactForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const name = document.querySelector("#name").value.trim();
+      document.querySelector("#formStatus").textContent =
+        `Спасибо, ${name}! Форма заполнена. Для реальной отправки подключите обработчик или backend.`;
+      event.target.reset();
+    });
+  </script>
+</body>
+</html>
